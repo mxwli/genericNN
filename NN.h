@@ -61,6 +61,8 @@ namespace NN {
 	// activations are kept in net
 	linalg::vector run_network(network_compiled& net, linalg::vector input);
 
+	float mean_squared_error(linalg::vector output, linalg::vector desired);
+
 	typedef struct gradient_layer {
 		linalg::matrix weight_grad;
 		linalg::vector bias_grad;
@@ -78,6 +80,8 @@ namespace NN {
 	gradient grad_scale(gradient a, float f);
 
 	gradient back_propagate(network_compiled net, linalg::vector desired);
+
+	void apply_gradient(network_compiled& net, gradient grad);
 }
 
 #endif

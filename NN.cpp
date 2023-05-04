@@ -101,14 +101,25 @@ linalg::vector NN::run_network(network_compiled& ret, linalg::vector input) {
 	return ret.layers.back().layer;
 }
 
+float NN::mean_squared_error(linalg::vector output, linalg::vector desired) {
+	#ifdef DEBUG_NN
+		assert(output.size() == desired.size());
+	#endif
+	float sum = 0;
+	for(int i = 0; i < output.size(); i++)
+		sum += (output[i]-desired[i])*(output[i]-desired[i]);
+	sum /= output.size();
+	return sum;
+}
+
 NN::gradient_layer::gradient_layer(layer_compiled of) {
 	weight_grad = linalg::make_matrix(of.weights.size(), of.weights[0].size());
 	bias_grad = linalg::make_vector(of.biases.size());
 }
 NN::gradient::gradient(network_compiled of) {
-	grad_layers = std::vector<gradient_layer>(of.layers.size());
+	grad_layers = std::vector<gradient_layer>();
 	for(int i = 0; i < of.layers.size(); i++)
-		grad_layers[i] = gradient_layer(of.layers[i]);
+		grad_layers.push_back(gradient_layer(of.layers[i]));
 }
 
 gradient_layer NN::grad_layer_add(gradient_layer a, gradient_layer b) {
@@ -177,4 +188,20 @@ gradient NN::back_propagate(network_compiled net, linalg::vector desired) {
 		);
 	}
 	return ret;
+}
+
+void NN::apply_gradient(network_compiled& net, gradient grad) {
+	#ifdef DEBUG_NN
+		assert(net.layers.size() == grad.grad_layers.size());
+	#endif
+	for(int i = 1; i < net.layers.size(); i++) {
+		net.layers[i].weights = linalg::add_matrix(
+			net.layers[i].weights,
+			grad.grad_layers[i].weight_grad
+		);
+		net.layers[i].biases = linalg::add_vector(
+			net.layers[i].biases,
+			grad.grad_layers[i].bias_grad
+		);
+	}
 }
