@@ -34,12 +34,25 @@ matrix linalg::add_matrix(matrix a, matrix b) {
         ret[i][i2] += b[i][i2];
     return ret;
 }
+matrix linalg::scale_matrix(matrix m, float f) {
+    matrix ret = m;
+    for(auto& row : ret)
+        for(auto& col: row)
+            col *= f;
+    return ret;
+}
 vector linalg::add_vector(vector a, vector b) {
     #ifdef DEBUG_LINALG
         assert(a.size() == b.size());   // assert postcondition
     #endif
     vector ret(a.size());
     for(int i = 0; i < a.size(); i++) ret[i] = a[i] + b[i];
+    return ret;
+}
+vector linalg::scale_vector(vector v, float f) {
+    vector ret = v;
+    for(auto& i: ret)
+        i *= f;
     return ret;
 }
 

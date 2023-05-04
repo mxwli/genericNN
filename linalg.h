@@ -15,7 +15,9 @@ namespace linalg {
 	// your standard matrix utilities
 	matrix mult_matrix(matrix a, matrix b);
 	matrix add_matrix(matrix a, matrix b);
+	matrix scale_matrix(matrix m, float f);
 	vector add_vector(vector a, vector b);
+	vector scale_vector(vector v, float f);
 	matrix as_row_matrix(vector v);
 	matrix as_column_matrix(vector v);
 	// flattens out a matrix (row by row first)

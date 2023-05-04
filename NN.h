@@ -60,11 +60,12 @@ namespace NN {
 	linalg::vector run_network(network_compiled& net, linalg::vector input);
 
 	typedef struct negative_gradient_layer {
-
+		linalg::matrix weight_grad;
+		linalg::vector bias_grad;
 	} negative_gradient_layer;
 
 	typedef struct negative_gradient {
-
+		std::vector<negative_gradient_layer> layers_grad;
 	} negative_gradient;
 }
 
