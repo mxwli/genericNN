@@ -41,6 +41,21 @@ matrix linalg::scale_matrix(matrix m, float f) {
             col *= f;
     return ret;
 }
+vector linalg::mult_vector(vector a, vector b) {
+    #ifdef DEBUG_LINALG
+        assert(a.size() == b.size());
+    #endif
+    vector ret = a;
+    for(int i = 0; i < a.size(); i++) ret[i] = a[i]*b[i];
+    return ret;
+}
+matrix linalg::outer_matrix(vector a, vector b) {
+    matrix ret = make_matrix(a.size(), b.size());
+    for(int i = 0; i < a.size(); i++)
+        for(int i2 = 0; i2 < b.size(); i2++)
+            ret[i][i2] = a[i]*b[i2];
+    return ret;
+}
 vector linalg::add_vector(vector a, vector b) {
     #ifdef DEBUG_LINALG
         assert(a.size() == b.size());   // assert postcondition

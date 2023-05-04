@@ -16,6 +16,8 @@ namespace linalg {
 	matrix mult_matrix(matrix a, matrix b);
 	matrix add_matrix(matrix a, matrix b);
 	matrix scale_matrix(matrix m, float f);
+	vector mult_vector(vector a, vector b); //dot product
+	matrix outer_matrix(vector a, vector b); //outer product
 	vector add_vector(vector a, vector b);
 	vector scale_vector(vector v, float f);
 	matrix as_row_matrix(vector v);

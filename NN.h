@@ -16,6 +16,7 @@ namespace NN {
 	float rand_gaus(float M, float STD);
 
 	// your standard activation functions
+	//note that this implementation is a leaky relu
 	float func_relu(float x);
 	float func_relu_derivative(float x);
 	float func_logistic(float x);
@@ -57,16 +58,26 @@ namespace NN {
 
 	network_compiled compile_network(network net);
 
+	// activations are kept in net
 	linalg::vector run_network(network_compiled& net, linalg::vector input);
 
-	typedef struct negative_gradient_layer {
+	typedef struct gradient_layer {
 		linalg::matrix weight_grad;
 		linalg::vector bias_grad;
-	} negative_gradient_layer;
+		gradient_layer(layer_compiled of);	// what layer is this a gradient of?
+	} gradient_layer;
 
-	typedef struct negative_gradient {
-		std::vector<negative_gradient_layer> layers_grad;
-	} negative_gradient;
+	typedef struct gradient {
+		std::vector<gradient_layer> grad_layers;
+		gradient(network_compiled of);		// what network is this a gradient of?
+	} gradient;
+
+	gradient_layer grad_layer_add(gradient_layer a, gradient_layer b);
+	gradient_layer grad_layer_scale(gradient_layer a, float f);
+	gradient grad_add(gradient a, gradient b);
+	gradient grad_scale(gradient a, float f);
+
+	gradient back_propagate(network_compiled net, linalg::vector desired);
 }
 
 #endif
