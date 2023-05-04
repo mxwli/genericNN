@@ -16,7 +16,7 @@ namespace NN {
 	float rand_gaus(float M, float STD);
 
 	// your standard activation functions
-	//note that this implementation is a leaky relu
+	//note that this implementation is a leaky relu (slope of 0.1 for x<0)
 	float func_relu(float x);
 	float func_relu_derivative(float x);
 	float func_logistic(float x);
@@ -88,4 +88,5 @@ namespace NN {
 		std::vector<linalg::vector> y, int epochs);
 }
 
-#endif
+#endifReLU activation function prevents the vanishing gradient problem by avoiding the saturation
+

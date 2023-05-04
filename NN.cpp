@@ -1,6 +1,7 @@
 #include "NN.h"
 
 #include <cassert>
+#include <iostream>
 
 #define DEBUG_NN
 
@@ -15,8 +16,8 @@ float NN::rand_gaus(float M, float STD) {
 	return norm(mers_twister);
 }
 
-float NN::func_relu(float x) { return x < 0 ? (0.01*x) : x; }
-float NN::func_relu_derivative(float x) {return x<0?0.01:1;}
+float NN::func_relu(float x) { return x < 0 ? (0.1*x) : x; }
+float NN::func_relu_derivative(float x) {return x<0?0.1:1;}
 float NN::func_logistic(float x) { return x / std::sqrt(x * x + 1); }
 float NN::func_logistic_derivative(float x) {return 1/(x*x+1)/std::sqrt(x*x+1);}
 float NN::func_linear(float x) {return x;}
@@ -228,4 +229,7 @@ void NN::automatic_fit(network_compiled& net,
 		MSE /= X.size();
 		apply_gradient(net, total);
 	}
+	#ifdef DEBUG_NN
+		std::cout << MSE << "\n";
+	#endif
 }
