@@ -82,6 +82,10 @@ namespace NN {
 	gradient back_propagate(network_compiled net, linalg::vector desired);
 
 	void apply_gradient(network_compiled& net, gradient grad);
+
+	void automatic_fit(network_compiled& net,
+		std::vector<linalg::vector> X,
+		std::vector<linalg::vector> y, int epochs);
 }
 
 #endif

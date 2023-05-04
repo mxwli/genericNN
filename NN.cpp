@@ -205,3 +205,27 @@ void NN::apply_gradient(network_compiled& net, gradient grad) {
 		);
 	}
 }
+
+void NN::automatic_fit(network_compiled& net,
+		std::vector<linalg::vector> X,
+		std::vector<linalg::vector> y, int epochs) {
+	#ifdef DEBUG_NN
+		assert(X.size() == y.size());
+	#endif
+	float MSE = 0;
+	for(int ___x = 0; ___x < epochs; ___x++) {
+		NN::gradient total(net);
+		MSE = 0;
+		for(int i = 0; i < X.size(); i++) {
+			linalg::vector output = run_network(net, X[i]);
+			MSE += mean_squared_error(y[i], output);
+			total = grad_add(
+				total,
+				back_propagate(net, y[i])
+			);
+		}
+		total = grad_scale(total, -net.learning_rate/X.size());
+		MSE /= X.size();
+		apply_gradient(net, total);
+	}
+}
