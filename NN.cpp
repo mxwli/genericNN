@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <string>
 
 #define DEBUG_NN
 
@@ -75,6 +76,61 @@ network_compiled NN::compile_network(network net) {
 		prev = i_comp;
 	}
 	return comp;
+}
+
+void NN::write_network_compiled(network_compiled net, std::ostream& file) {
+	file << net.learning_rate << " " << net.layers.size() << "\n";
+	for(const auto& layer: net.layers) {
+		if(layer.activation == func_linear)
+			file << "linear\n";
+		else if(layer.activation == func_logistic)
+			file << "logistic\n";
+		else if(layer.activation == func_relu)
+			file << "relu\n";
+		else
+			file << "other\n";
+		file << layer.weights.size() << " " << layer.weights[0].size() << "\n";
+		for(const auto& row: layer.weights) {
+			for(const auto& col: row){
+				file << col << " ";
+			}
+			file << "\n";
+		}
+		file << layer.biases.size() << "\n";
+		for(const auto& elem: layer.biases)
+			file << elem << " ";
+		file << "\n";
+	}
+}
+network_compiled NN::read_network_compiled(std::istream& file) {
+	network_compiled ret;
+	int N, M;
+	std::string activation;
+	file >> ret.learning_rate >> N;
+	for(int lay = 0; lay < N; lay++) {
+		layer_compiled curlayer;
+		file >> activation;
+		if(activation.compare(std::string("linear")) == 0)
+			curlayer.activation = func_linear,
+			curlayer.activation_derivative = func_linear_derivative;
+		if(activation.compare(std::string("logistic")) == 0)
+			curlayer.activation = func_logistic,
+			curlayer.activation_derivative = func_logistic_derivative;
+		if(activation.compare(std::string("relu")) == 0)
+			curlayer.activation = func_relu,
+			curlayer.activation_derivative = func_relu_derivative;
+		file >> N >> M;
+		curlayer.weights = linalg::make_matrix(N, M);
+		for(auto& row: curlayer.weights)
+			for(auto& col: row)
+				file >> col;
+		file >> N;
+		curlayer.biases = linalg::make_vector(N);
+		for(auto& elem: curlayer.biases)
+			file >> elem;
+		ret.layers.push_back(curlayer);
+	}
+	return ret;
 }
 
 linalg::vector NN::run_network(network_compiled& ret, linalg::vector input) {

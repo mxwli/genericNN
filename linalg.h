@@ -6,6 +6,8 @@
 
 namespace linalg {
 
+	// this is a header file describing a namespace of linear algebra utilities
+
 	typedef std::vector<float> vector;				// vector of floats
 	typedef std::vector<std::vector<float>> matrix;	// matrix
 

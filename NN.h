@@ -3,9 +3,13 @@
 
 #include <vector>
 #include <random>
+#include <ios>
 #include "linalg.h"
 
 namespace NN {
+
+	// This is a header describing a namespace of
+	// neural network utilities
 
 	inline std::mt19937_64 mers_twister;
 
@@ -58,6 +62,9 @@ namespace NN {
 
 	network_compiled compile_network(network net);
 
+	void write_network_compiled(network_compiled net, std::ostream& stream);
+	network_compiled read_network_compiled(std::istream& stream);
+
 	// activations are kept in net
 	linalg::vector run_network(network_compiled& net, linalg::vector input);
 
@@ -86,7 +93,7 @@ namespace NN {
 	void automatic_fit(network_compiled& net,
 		std::vector<linalg::vector> X,
 		std::vector<linalg::vector> y, int epochs);
+	// elementary fitting algorithm: mostly for testing
 }
 
-#endifReLU activation function prevents the vanishing gradient problem by avoiding the saturation
-
+#endif
