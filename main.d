@@ -1,1 +1,1 @@
-main.o: main.cpp NN.h linalg.h
+main.o: main.cpp game.h
