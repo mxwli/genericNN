@@ -1,3 +1,121 @@
+# Box2D notes:
+
+### setup:
+```cpp
+b2Vec2 gravity(0, -10);
+b2World world(gravity);
+```
+
+### creating a static body:
+```cpp
+// Define the body
+b2BodyDef groundBodyDef;
+groundBodyDef.position.Set(0, -10);
+b2Body* groundBody = world.CreateBody(&groundBodyDef);
+
+// Define the polygon
+b2PolygonShape groundBox;
+groundBox.SetAsBox(width, height);
+
+// Add the fixture (properties of body)
+groundBody->CreateFixture(&groundBox, 0);
+```
+
+### creating a dynamic body
+```cpp
+// Define the body
+b2BodyDef bodyDef;
+bodyDef.type = b2_dynamicBody;
+bodyDef.position.Set(0, 4);
+b2Body* body = world.CreateBody(&bodyDef);
+
+// Define the polygon
+b2PolygonShape dynamicBox;
+dynamicBox.SetAsBox(1, 1);
+
+//Define the fixture (properties)
+b2FixtureDef fixtureDef;
+fixtureDef.shape = &dynamicBox;
+fixtureDef.density = 1.0f;
+fixtureDef.friction = 0.3f;
+fixtureDef.restitution = 1.0f;
+
+// Add the fixture (properties of the body)
+body->CreateFixture(&fixtureDef);
+```
+
+### Simulating the world
+```cpp
+// setup
+float timeStep = 1.0f/6.0f;
+int velocityIterations = 6;
+int positionIterations = 2;
+
+// loop
+for(...) {
+    world.Step(timeStep, velocityIterations, positionIterations);
+    // perform insight here
+}
+
+// resulting world
+```
+
+### Gradient Descent:
+to increase the output of a neuron:
+increase its input bias
+increase each weight in proportion to the correspodning neuron value
+increase each neuron value in proportion to the corresponding weight (this is done via another layer of gradient descent)
+
+### Using the network (XOR example)
+```cpp
+#include <iostream>
+#include "NN.h"
+using namespace std;
+
+int main() {
+	vector<NN::layer> vec{
+		NN::layer(2, NN::activation_type::linear),
+		NN::layer(3, NN::activation_type::relu),
+		NN::layer(1, NN::activation_type::logistic),
+	};
+	NN::network net(vec, 0.1);
+	NN::network_compiled net_comp = NN::compile_network(net);
+	vector<linalg::vector> train_data{
+		linalg::vector{0,0},
+		linalg::vector{0,1},
+		linalg::vector{1,0},
+		linalg::vector{1,1}
+	};
+	vector<linalg::vector> target_data{
+		linalg::vector{0},
+		linalg::vector{1},
+		linalg::vector{1},
+		linalg::vector{0}
+	};
+	for(int epoch = 0; epoch < 5000; epoch++) {
+		NN::gradient total(net_comp);
+		float MSE = 0;
+		for(int i = 0; i < 4; i++) {
+			linalg::vector output = NN::run_network(net_comp, train_data[i]);
+			MSE += NN::mean_squared_error(target_data[i], output);
+			total = NN::grad_add(
+				total,
+				NN::back_propagate(net_comp, target_data[i])
+			);
+		}
+		total = NN::grad_scale(total, -net_comp.learning_rate/4);
+		NN::apply_gradient(net_comp, total);
+	}
+	while(true) {
+		float a, b;
+		cin >> a >> b;
+		cout << (NN::run_network(net_comp, {a, b})[0]) << "\n";
+	}
+}
+```
+
+# reinforcement learning:
+```
 #include <iostream>
 #include <raylib.h>
 #include <raymath.h>
@@ -59,14 +177,9 @@ float run_epoch(NN::network_compiled& net, int samples, int N_ticks) {
 
 int main() {
 
-	cout << "0 for train from scratch, 1 for train from save, 2 for display from save\n";
+	cout << "0 for train, 1 for testing\n";
 	int choice_number; cin >> choice_number;
-	if(choice_number == 0 || choice_number == 1) {
-		if(choice_number == 1) {
-			ifstream file_in("saves/A-500-50-180.txt", ifstream::in);
-			net = NN::read_network_compiled(file_in);
-			file_in.close();
-		}
+	if(choice_number == 0) {
 		float maxreward = -100;
 		for(int i = 0; i < 1000; i++) {
 			cout << "epoch " << i << "\treward: ";
@@ -133,3 +246,13 @@ int main() {
 		EndDrawing();
 	}
 }
+```
+
+### Observations:
+higher epochs generally increase accuracy under the right hyperparameters.
+lower samples allows for faster learning and less of a chance to converge to a bad minima (around 6 is optimal).
+N_ticks is untested.
+discount_factor is untested.
+learning_rate is optimal at around 0.001, give or take 0.0005.
+optimal layer configuration is 4 (linear), 10 (relu), 6(logistic).
+

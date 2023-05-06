@@ -13,13 +13,25 @@ namespace reinforce {
 		linalg::vector state;
 		linalg::vector action;
 		float reward;
+		float attribution;
 	} state_action_reward;
 
-	typedef struct SAR_list {
+	typedef struct trajectory {
 		// a list of state_action_rewards, representing the trajectory
 		// of the agent in a single playthrough
 		std::vector<state_action_reward> list;
-	} SAR_list;
+	} trajectory;
+
+	typedef struct playthroughs {
+		// a list of trajectories, each representing a separate playthough
+		std::vector<trajectory> list;
+		void new_trajectory();
+		void append_SAR(linalg::vector state, linalg::vector action, float reward);
+		void gradient_descent(NN::network_compiled& net, float discount_factor);
+		// the goal of playthroughs is  to "blindly" perform reinforcement actions
+		// (ie without knowledge of the policy or game)
+		// so that the struct acts as a library to train the network
+	} playthroughs;
 
 	// The goal of the above is to run a common variant of Ronald Williams'
 	// REINFORCE algorithms, As described in page 621 of hands

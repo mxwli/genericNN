@@ -104,10 +104,10 @@ void NN::write_network_compiled(network_compiled net, std::ostream& file) {
 }
 network_compiled NN::read_network_compiled(std::istream& file) {
 	network_compiled ret;
-	int N, M;
+	int Nlayers, N, M;
 	std::string activation;
-	file >> ret.learning_rate >> N;
-	for(int lay = 0; lay < N; lay++) {
+	file >> ret.learning_rate >> Nlayers;
+	for(int lay = 0; lay < Nlayers; lay++) {
 		layer_compiled curlayer;
 		file >> activation;
 		if(activation.compare(std::string("linear")) == 0)
@@ -128,6 +128,7 @@ network_compiled NN::read_network_compiled(std::istream& file) {
 		curlayer.biases = linalg::make_vector(N);
 		for(auto& elem: curlayer.biases)
 			file >> elem;
+		curlayer.layer = linalg::make_vector(N);
 		ret.layers.push_back(curlayer);
 	}
 	return ret;
@@ -144,8 +145,8 @@ linalg::vector NN::run_network(network_compiled& ret, linalg::vector input) {
 		linalg::add_vector(ret.layers[0].layer, ret.layers[0].biases),
 		ret.layers[0].activation
 	);
-	for(int i = 1; i < ret.layers.size(); i++)
-		ret.layers[i].layer = linalg::apply(
+	for(int i = 1; i < ret.layers.size(); i++) {
+		linalg::vector newlayer = linalg::apply(
 			linalg::add_vector(
 				linalg::as_vector(linalg::mult_matrix(
 					ret.layers[i].weights,
@@ -155,7 +156,11 @@ linalg::vector NN::run_network(network_compiled& ret, linalg::vector input) {
 			),
 			ret.layers[i].activation
 		);
-	return ret.layers.back().layer;
+		for(int i2 = 0; i2 < newlayer.size(); i2++)
+			ret.layers[i].layer[i2] = newlayer[i2];
+	}
+	linalg::vector back = ret.layers.back().layer;
+	return back;
 }
 
 float NN::mean_squared_error(linalg::vector output, linalg::vector desired) {
