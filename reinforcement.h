@@ -1,6 +1,8 @@
 #ifndef REINFORCEMENT_H
 #define REINFORCEMENT_H
 
+#include <string>
+
 #include "NN.h"
 
 namespace reinforce {
@@ -33,6 +35,13 @@ namespace reinforce {
 		// so that the struct acts as a library to train the network
 	} playthroughs;
 
+	void REINFORCE(NN::network_compiled& net,
+		int descent_iterations,		//number of times gradient descent is applied
+		int batch_size,				//number of playthroughs per descent
+		int N_ticks,				//number of simulation ticks
+		float discount_factor,		//commonly referred to as gamma
+		std::string save_file		//where do we save the best network?
+	);
 	// The goal of the above is to run a common variant of Ronald Williams'
 	// REINFORCE algorithms, As described in page 621 of hands
 	// on machine learning with scikit learn, keras & tensorflow

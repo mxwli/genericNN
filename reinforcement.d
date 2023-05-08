@@ -1,1 +1,1 @@
-reinforcement.o: reinforcement.cpp reinforcement.h NN.h linalg.h
+reinforcement.o: reinforcement.cpp reinforcement.h NN.h linalg.h game.h
