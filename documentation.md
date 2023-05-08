@@ -115,7 +115,7 @@ int main() {
 ```
 
 # reinforcement learning:
-```
+```cpp
 #include <iostream>
 #include <raylib.h>
 #include <raymath.h>
@@ -256,3 +256,85 @@ discount_factor is untested.
 learning_rate is optimal at around 0.001, give or take 0.0005.
 optimal layer configuration is 4 (linear), 10 (relu), 6(logistic).
 
+### Reinforcement learning (rewards adjusted)
+```cpp
+#include <iostream>
+#include <raylib.h>
+#include <raymath.h>
+#include <box2d/box2d.h>
+#include <fstream>
+#include <sstream>
+#include "game.h"
+#include "NN.h"
+#include "reinforcement.h"
+using namespace std;
+#define SCREENWIDTH 700
+#define SCREENHEIGHT 700
+
+NN::network configuration({
+	NN::layer(7, NN::activation_type::linear),
+	NN::layer(10, NN::activation_type::relu),
+	NN::layer(3, NN::activation_type::logistic)
+}, 0.1);
+NN::network_compiled net = NN::compile_network(configuration);
+void load_from_file(string file_name) {
+	ifstream file_in(file_name,ifstream::in);
+	net = NN::read_network_compiled(file_in);
+	file_in.close();
+}
+
+int main() {
+
+	int iterations = 100, batch_size = 150, N_ticks = 300;
+	float decay = 0.995;
+	stringstream sstream;
+	sstream << "saves/C-" << iterations << "-" << batch_size << "-" << N_ticks << "-"
+		<< decay << "-";
+	string save_file;
+	sstream >> save_file;
+
+	//load_from_file("saves/C-750-128-150-0.995-record");
+	//reinforce::REINFORCE(net,iterations, batch_size, N_ticks, decay, save_file);
+	load_from_file(save_file);
+
+	b2Vec2 gravity(0, 3);
+	GS::game current_game(gravity, 0, 0);
+	current_game.player.body->ApplyAngularImpulse(5,true);
+	Vector2 camera_pos = {-100, -100};
+	InitWindow(SCREENWIDTH, SCREENHEIGHT, "");
+	SetTargetFPS(15);
+	while(!WindowShouldClose()) {
+		//camera_pos.x = GS::get_state(current_game)[0]-5;
+		//camera_pos.y = GS::get_state(current_game)[1]-5;
+		linalg::vector network_response = NN::run_network(net, GS::get_state(current_game));
+		std::vector<int> interpreted_action(network_response.size());
+		for(int i = 0; i < network_response.size(); i++)
+			interpreted_action[i] = network_response[i]>NN::rand_unif(-1,1);
+		interpreted_action = std::vector<int>{
+			interpreted_action[0],
+			interpreted_action[1],
+			interpreted_action[1],
+			interpreted_action[0],
+			interpreted_action[2]
+		};
+		GS::game_step(current_game, interpreted_action);
+		BeginDrawing();
+		ClearBackground(BLACK);
+		current_game.player.draw_drone(camera_pos, 3.5, WHITE);
+		EndDrawing();
+	}
+	CloseWindow();
+}
+```
+
+### observations
+with this style of reinforcement learning, the following hyperparameters seem to work
+iterations: ~750 to train a network to a satisfactory level
+batch_size: a high number (32+) is necessary for the network to converge
+N_ticks: Should be 75 at the bare minimum (5 seconds in simulation time)
+decay: 0.995; alternative decay values have been untested so far
+
+the 7:10(relu):3(logistic) network model appears to work just fine.
+
+However, in preparation for training for more advanced games, a second
+relu layer may be added in the future
