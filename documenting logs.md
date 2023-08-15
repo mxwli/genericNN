@@ -102,7 +102,9 @@ int main() {
 				total,
 				NN::back_propagate(net_comp, target_data[i])
 			);
-		}
+		}	// REINFORCE algorithms, As described in page 621 of hands
+	// on machine learning with scikit learn, keras & tensorflow
+	// (Aurelien Geron)
 		total = NN::grad_scale(total, -net_comp.learning_rate/4);
 		NN::apply_gradient(net_comp, total);
 	}
@@ -212,10 +214,9 @@ int main() {
 	SetTargetFPS(FPS);
 
 	while(!WindowShouldClose()) {
-		linalg::vector state{
-			frame.player.body->GetLinearVelocity().x,
-			frame.player.body->GetLinearVelocity().y,
-			frame.player.body->GetAngularVelocity(),
+		linalg::vector state{	// REINFORCE algorithms, As described in page 621 of hands
+	// on machine learning with scikit learn, keras & tensorflow
+	// (Aurelien Geron)GetAngularVelocity(),
 			frame.player.body->GetAngle()
 		};
 		linalg::vector action = NN::run_network(net, state);
@@ -293,20 +294,20 @@ int main() {
 	string save_file;
 	sstream >> save_file;
 
-	//load_from_file("saves/C-750-128-150-0.995-record");
+	load_from_file("saves/C-750-128-150-0.995-record");
 	//reinforce::REINFORCE(net,iterations, batch_size, N_ticks, decay, save_file);
-	load_from_file(save_file);
+	//load_from_file(save_file);
 
 	b2Vec2 gravity(0, 3);
 	GS::game current_game(gravity, 0, 0);
-	current_game.player.body->ApplyAngularImpulse(5,true);
-	Vector2 camera_pos = {-100, -100};
+	Vector2 camera_pos = {-50, -50};
 	InitWindow(SCREENWIDTH, SCREENHEIGHT, "");
 	SetTargetFPS(15);
 	while(!WindowShouldClose()) {
-		//camera_pos.x = GS::get_state(current_game)[0]-5;
-		//camera_pos.y = GS::get_state(current_game)[1]-5;
-		linalg::vector network_response = NN::run_network(net, GS::get_state(current_game));
+		linalg::vector state = GS::get_state(current_game);
+		state[2] = state[2]-IsKeyDown(KEY_D)+IsKeyDown(KEY_A);
+		state[3] = state[3]-IsKeyDown(KEY_S)+IsKeyDown(KEY_W);
+		linalg::vector network_response = NN::run_network(net, state);
 		std::vector<int> interpreted_action(network_response.size());
 		for(int i = 0; i < network_response.size(); i++)
 			interpreted_action[i] = network_response[i]>NN::rand_unif(-1,1);
@@ -320,7 +321,7 @@ int main() {
 		GS::game_step(current_game, interpreted_action);
 		BeginDrawing();
 		ClearBackground(BLACK);
-		current_game.player.draw_drone(camera_pos, 3.5, WHITE);
+		current_game.player.draw_drone(camera_pos, 7, WHITE);
 		EndDrawing();
 	}
 	CloseWindow();
@@ -338,3 +339,8 @@ the 7:10(relu):3(logistic) network model appears to work just fine.
 
 However, in preparation for training for more advanced games, a second
 relu layer may be added in the future
+
+Moving on from basic reinforce algorithms, the next step is to implement
+deep Q-learning
+Rewrite of old game I wrote in highschool
+

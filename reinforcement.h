@@ -46,5 +46,8 @@ namespace reinforce {
 	// REINFORCE algorithms, As described in page 621 of hands
 	// on machine learning with scikit learn, keras & tensorflow
 	// (Aurelien Geron)
+	// the input of the network is GS::get_state, and the output of the network
+	// is a number x in [-1, 1] indicating the probability of a thruster
+	// being fired (ie. x=0 means 50% chance)
 }
 #endif

@@ -41,6 +41,32 @@ matrix linalg::scale_matrix(matrix m, float f) {
             col *= f;
     return ret;
 }
+
+float linalg::det_matrix(matrix m) {
+	#ifdef DEBUG_LINALG
+		assert(m.size() == m[0].size());
+	#endif
+	float ret = 1;
+	for(std::size_t i = 0; i < m.size(); i++) {
+		if(std::abs(m[i][i])<EPS) {
+			bool foundflag = false;
+			for(std::size_t i2 = i+1; i2 < m.size(); i2++) if(std::abs(m[i2][i]) > EPS) {
+				swap(m[i], m[i2]);
+				foundflag = true;
+				break;
+			}
+			if(foundflag)
+				ret *= -1; // swap operation negates determinant
+			else
+				return 0; // rows are linearly dependent
+		}
+		for(std::size_t i2 = i+1; i2 < m.size(); i2++)
+			m[i2] = add_vector(m[i2], scale_vector(m[i], -m[i2][i]/m[i][i]));
+	}
+	for(std::size_t i = 0; i < m.size(); i++)
+		ret *= m[i][i];
+	return ret;
+}
 vector linalg::mult_vector(vector a, vector b) {
     #ifdef DEBUG_LINALG
         assert(a.size() == b.size());
@@ -70,6 +96,11 @@ vector linalg::scale_vector(vector v, float f) {
         i *= f;
     return ret;
 }
+int linalg::argmax_vector(vector v) {
+    int ret = 0;
+    for(int i = 0; i < v.size(); i++) if(v[i] > v[ret]) ret = i;
+    return ret;
+}
 
 matrix linalg::as_row_matrix(vector v) {
 	return matrix(1, v);
@@ -90,5 +121,16 @@ vector linalg::as_vector(matrix m) {
 vector linalg::apply(vector v, float(*func)(float)) {
     vector ret(v.size());
     for(int i = 0; i < v.size(); i++) ret[i] = func(v[i]);
+    return ret;
+}
+
+float linalg::vector_length(vector v) {
+    float ret = 0;
+    for(const auto& elem: v) ret += elem*elem;
+    return std::sqrt(ret);
+}
+float linalg::vector_sum(vector v) {
+    float ret = 0;
+    for(const auto& elem: v) ret += elem;
     return ret;
 }

@@ -98,7 +98,7 @@ GS::drone::drone(float posx, float posy, b2World& world) {
 
 	float width = 1, height = 1;
 
-	box.SetAsBox(width, height);
+	box.SetAsBox(width/2, height/2);
 	
 	fixture_def.shape = &box;
 	fixture_def.density = 1.0f;
@@ -111,11 +111,11 @@ GS::drone::drone(float posx, float posy, b2World& world) {
 		{-width/2, -height/2}, {-width/2, height/2}, {width/2, height/2}};
 
 	thrusters = {
-		thruster(width/2, height/4, 0, -10),
-		thruster(width/2, -height/4, 0, 10),
-		thruster(-width/2, height/4, 0, -10),
-		thruster(-width/2, -height/4, 0, 10),
-		thruster(0, height/2, 0, -40)
+		thruster(width/2, height/4, 0, -4),
+		thruster(width/2, -height/4, 0, 4),
+		thruster(-width/2, height/4, 0, -4),
+		thruster(-width/2, -height/4, 0, 4),
+		thruster(0, height/2, 0, -50)
 	};
 
 	last_activation = std::vector<int>(thrusters.size());
