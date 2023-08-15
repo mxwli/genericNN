@@ -342,5 +342,3 @@ relu layer may be added in the future
 
 Moving on from basic reinforce algorithms, the next step is to implement
 deep Q-learning
-Rewrite of old game I wrote in highschool
-
